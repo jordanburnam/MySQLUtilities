@@ -54,6 +54,25 @@ namespace RJBMySQLUtilities.DataLogging.DataLogging.Model
 
             return sTableDefintion;
         }
+
+        public string GetSourceTableTrigger(string sTriggerName)
+        {
+            string sSourceTableTrigger = "delimiter ////" + Environment.NewLine +
+                                         "DROP TRIGGER IF EXISTS {0}////" + Environment.NewLine +
+                                         "CREATE TRIGGER {0} BEFORE UPDATE ON {1} FOR EACH ROW" + Environment.NewLine +
+                                         "BEGIN" + Environment.NewLine +
+                                         "INSERT INTO {2}(" + Environment.NewLine +
+                                         "{3}" + Environment.NewLine +
+                                         ")" + Environment.NewLine +
+                                        "SELECT " + Environment.NewLine +
+                                        "{4}" + Environment.NewLine +
+                                        "FROM inserted AS A" + Environment.NewLine +
+                                        "INNER JOIN deleted AS B ON B.{5} = A.{5};" + Environment.NewLine +
+                                        "END;" + Environment.NewLine;
+
+            
+            return sSourceTableTrigger;
+        }
         private string GetColumnDefinitions()
         {
             string sColumnDefinitions = "" + Environment.NewLine;
