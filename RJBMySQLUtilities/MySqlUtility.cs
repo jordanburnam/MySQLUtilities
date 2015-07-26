@@ -20,6 +20,7 @@ namespace RJBMySQLUtilities.DataLogging
     {
         private   string csConnectionString = "";
         private   MySqlConnection oMySqlConnection;
+        
         public MySqlUtility(string csMySqlDB)
         {
             try
@@ -311,5 +312,9 @@ namespace RJBMySQLUtilities.DataLogging
 
         }
 
+        public string GetDBNameFromConnection()
+        {
+            return this.oMySqlConnection.Database;
+        }
     }
 }

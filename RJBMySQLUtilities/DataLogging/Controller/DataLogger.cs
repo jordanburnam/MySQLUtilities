@@ -70,6 +70,19 @@ namespace RJBMySQLUtilities.DataLogging.DataLogging.Controller
         #endregion
 
         #region Methods
+        public string GetLogTriggerForTable(string sSourceTableName)
+        {
+            string sLogTrigger = "";
+            sSourceTableName = this._oMySqlUtility_Source.GetTableNameOnly(sSourceTableName);
+            string sDestinationTableName = this._HistoryTablePrefix + sSourceTableName + this._HistoryTableSuffix;
+            DataTable dt = GetTableSchema(sSourceTableName);
+            sDestinationTableName = this._oMySqlUtility_Destination.AddSchemaToTableName(sDestinationTableName);
+            DataLogger_LogTable oLogTable = new DataLogger_LogTable(sSourceTableName, sDestinationTableName, this._oMySqlUtility_Source.GetDBNameFromConnection(), this._oMySqlUtility_Destination.GetDBNameFromConnection(), dt);
+            sLogTrigger = oLogTable.GetSourceTableTrigger(sSourceTableName + "_BEFORE_UPDATE");
+
+            return sLogTrigger;
+        }
+
         public string GenerateLogSchemaFromSource()
         {
             throw new NotImplementedException();
@@ -82,11 +95,12 @@ namespace RJBMySQLUtilities.DataLogging.DataLogging.Controller
             string sDestinationTableName = this._HistoryTablePrefix + sSourceTableName + this._HistoryTableSuffix;
             DataTable dt = GetTableSchema(sSourceTableName);
             sDestinationTableName = this._oMySqlUtility_Destination.AddSchemaToTableName(sDestinationTableName);
-            DataLogger_LogTable oLogTable = new DataLogger_LogTable(sSourceTableName, sDestinationTableName, dt);
+            DataLogger_LogTable oLogTable = new DataLogger_LogTable(sSourceTableName, sDestinationTableName, this._oMySqlUtility_Source.GetDBNameFromConnection(), this._oMySqlUtility_Destination.GetDBNameFromConnection(), dt);
             sLogSchema = oLogTable.GetTableDefinition();
 
             return sLogSchema;
         }
+
 
         private DataTable GetTableSchema(string sTableName)
         {

@@ -22,7 +22,7 @@ namespace RJBMySQLUtilitiesTest
                 string sDestinationConnectionString = ConfigurationManager.ConnectionStrings["DestintaionDatabase"].ConnectionString;
 
                 DataLogger oDataChangeControl = new DataLogger(sSourceConnectionString, sDestinationConnectionString);
-                string sSchema = oDataChangeControl.GetLogSchemaForTable("ObjectsOfHate");
+                string sSchema = oDataChangeControl.GetLogTriggerForTable("ObjectsOfHate");
                 int i = 0;
 
                
