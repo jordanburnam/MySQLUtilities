@@ -221,6 +221,7 @@ namespace RJBMySQLUtilities.DataLogging
                 MySqlCommand oMySqlCommand = oMySqlConnection.CreateCommand();
                 oMySqlCommand.CommandType = CommandType.Text;
                 oMySqlCommand.CommandText = sQuery;
+                oMySqlConnection.Open();
                 iRowsAffected = oMySqlCommand.ExecuteNonQuery();
                 if (iRowsAffected < 0)
                 {
@@ -231,6 +232,13 @@ namespace RJBMySQLUtilities.DataLogging
             catch (Exception ex)
             {
                 throw ex;
+            }
+            finally
+            {
+                if(this.oMySqlConnection.State == ConnectionState.Open)
+                {
+                    oMySqlConnection.Close();
+                }
             }
             return iRowsAffected;
         }

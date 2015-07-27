@@ -85,7 +85,12 @@ namespace RJBMySQLUtilities.DataLogging.DataLogging.Controller
 
         public string GenerateLogSchemaFromSource()
         {
-            throw new NotImplementedException();
+            string sQuery = ""; 
+            sQuery += GenerateLogTablesQuery() + Environment.NewLine;
+            sQuery += GenerateLogTriggersQuery() + Environment.NewLine;
+
+            return sQuery;
+
         }
 
         public string GetLogSchemaForTable(string sSourceTableName)
@@ -101,6 +106,56 @@ namespace RJBMySQLUtilities.DataLogging.DataLogging.Controller
             return sLogSchema;
         }
 
+        private string GenerateLogTablesQuery()
+        {
+            string sQuery = ""; 
+            string[] sTables = GetTablesToLogFromSource();
+            foreach (string sTable in sTables)
+            {
+                sQuery += GetLogSchemaForTable(sTable) + Environment.NewLine;
+            }
+
+            return sQuery;
+        }
+
+        private string GenerateLogTriggersQuery()
+        {
+            string sQuery = "";
+            string[] sTables = GetTablesToLogFromSource();
+            foreach (string sTable in sTables)
+            {
+                sQuery += GetLogTriggerForTable(sTable) + Environment.NewLine;
+            }
+
+            return sQuery;
+        }
+        public void GenerateAndRunLogSchemaQuery()
+        {
+            string sTableQuery = GenerateLogTablesQuery();
+            string sTriggerQuery = GenerateLogTriggersQuery();
+            sTriggerQuery = sTriggerQuery.Replace("\r\n", " ").Replace("delimiter //", "");
+            sTriggerQuery = "delimiter //" + Environment.NewLine + sTriggerQuery;
+            int iRows = 0; 
+            iRows += this._oMySqlUtility_Destination.GetRowsAffectedWithQuery(sTableQuery);
+            iRows += this._oMySqlUtility_Source.GetRowsAffectedWithQuery(sTriggerQuery);
+
+
+        }
+        private string[] GetTablesToLogFromSource()
+        {
+           string[] sTables = null;
+            string sQuery = string.Format("SHOW TABLES IN `{0}`;", this._oMySqlUtility_Source.GetDBNameFromConnection());
+            DataTable dt = this._oMySqlUtility_Source.GetTableWithQuery(sQuery);
+            if(dt.Rows.Count > 0)
+            {
+                sTables = new string[dt.Rows.Count];
+                for(int i = 0; i < dt.Rows.Count; i++)
+                {
+                    sTables[i] = dt.Rows[i][0].ToString();
+                }
+            }
+            return sTables;
+        }
 
         private DataTable GetTableSchema(string sTableName)
         {
